@@ -29,7 +29,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .IsUnique();
 
        builder.Entity<Top2000Entry>()
-    .HasKey(e => new { e.SongId, e.Year });
+            .HasKey(e => new { e.SongId, e.Year });
 
     }
 }
