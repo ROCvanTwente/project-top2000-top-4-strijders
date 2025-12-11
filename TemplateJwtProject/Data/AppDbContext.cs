@@ -10,6 +10,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
+    public DbSet<Top2000Entry> Top2000Entry { get; set; }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -30,6 +31,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
        builder.Entity<Top2000Entry>()
             .HasKey(e => new { e.SongId, e.Year });
-
     }
 }
