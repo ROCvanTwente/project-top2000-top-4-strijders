@@ -11,6 +11,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
     }
     public DbSet<Top2000Entry> Top2000Entry { get; set; }
+    public  DbSet<Artist> Artist { get; set; }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 

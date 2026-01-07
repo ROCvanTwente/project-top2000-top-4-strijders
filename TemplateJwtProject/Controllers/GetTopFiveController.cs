@@ -8,10 +8,10 @@ namespace TemplateJwtProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GetTopFive : ControllerBase
+    public class GetTopFiveController : ControllerBase
     {
 		private readonly AppDbContext _context;
-		public GetTopFive(AppDbContext context)
+		public GetTopFiveController(AppDbContext context)
         {
             _context = context;
         }
