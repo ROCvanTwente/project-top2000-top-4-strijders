@@ -16,19 +16,27 @@ namespace TemplateJwtProject.Controllers
             _context = context;
         }
 
-        public async Task<List<Top2000Entry>> Get()
+        public async Task<ActionResult<List<Top2000Entry>>> Get(int year)
         {
             try
             {
-				var items = await _context.Top2000Entry
-				.Where(e => e.Year == 2024)
-				.Include(e => e.Songs)
-				.ThenInclude(s => s.Artist)
-				.OrderBy(e => e.Position)
-				.Take(5)
-				.ToListAsync();
+	            if (year >= 1999 && year < 2025)
+	            {
+		            var items = await _context.Top2000Entry
+			            .Where(e => e.Year == year)
+			            .Include(e => e.Songs)
+			            .ThenInclude(s => s.Artist)
+			            .OrderBy(e => e.Position)
+			            .Take(5)
+			            .ToListAsync();
 
-				return items;
+		            return Ok(items);
+	            }
+	            else
+	            {
+		            Console.WriteLine("jaar moet tussen de 1999 en 2024 zijn");
+		            return BadRequest("jaar moet tussen de 1999 en 2024 zijn");
+	            }
 			}
 			catch(Exception ex)
 			{
