@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TemplateJwtProject.Models
 {
@@ -9,16 +8,20 @@ namespace TemplateJwtProject.Models
         public int SongId { get; set; }
 
         [Required]
-        public string Titel {  get; set; }
+        public string Titel { get; set; }
+
         [Required]
         public int ReleaseYear { get; set; }
 
         public string? ImgUrl { get; set; }
         public string? Lyrics { get; set; }
-        public string? Youtube {  get; set; }
+        public string? Youtube { get; set; }
 
         [Required]
         public int ArtistId { get; set; }
+
         public Artist Artist { get; set; }
+
+        public ICollection<PlayListSong> PlayListSongs { get; set; } = new List<PlayListSong>();
     }
 }

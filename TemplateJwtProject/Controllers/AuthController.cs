@@ -75,7 +75,7 @@ public class AuthController : ControllerBase
         var token = await _jwtService.GenerateTokenAsync(user);
         var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(user.Id);
         var roles = await _userManager.GetRolesAsync(user);
-        
+
         return Ok(new AuthResponseDto
         {
             Token = token,
@@ -99,7 +99,7 @@ public class AuthController : ControllerBase
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-        
+
         if (!result.Succeeded)
         {
             return Unauthorized(new { message = "Invalid email or password" });
@@ -135,10 +135,10 @@ public class AuthController : ControllerBase
         }
 
         var user = refreshToken.User;
-        
+
         // Revoke het oude refresh token
         await _refreshTokenService.RevokeRefreshTokenAsync(
-            refreshToken.Token, 
+            refreshToken.Token,
             "Replaced by new token"
         );
 
@@ -178,7 +178,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> LogoutFromAllDevices()
     {
         var userId = _userManager.GetUserId(User);
-        
+
         if (userId == null)
         {
             return Unauthorized();
