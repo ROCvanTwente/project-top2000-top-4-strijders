@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TemplateJwtProject.Constants;
 using TemplateJwtProject.Models;
 using TemplateJwtProject.Models.DTOs;
@@ -51,9 +53,16 @@ public class AuthController : ControllerBase
 
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
+            Console.WriteLine(
+                JsonSerializer.Serialize(result, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                })
+            );
+            //
+			foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(error.Code, error.Description);
             }
             return BadRequest(ModelState);
         }
