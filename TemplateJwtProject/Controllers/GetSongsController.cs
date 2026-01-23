@@ -58,4 +58,20 @@ public class GetSongsController : Controller
 
         return Ok(result);
     }
+
+    // GET: api/GetSongs/5
+    [HttpGet("{artistId}")]
+    public async Task<ActionResult<List<Songs>>> GetSongsByArtist(int artistId)
+    {
+        var songs = await _context.Songs
+            .Where(s => s.ArtistId == artistId)
+            .Include(s => s.Artist)
+            .ToListAsync();
+
+        if (!songs.Any())
+            return NotFound();
+
+        return Ok(songs);
+    }
+
 }

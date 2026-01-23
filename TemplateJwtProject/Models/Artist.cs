@@ -11,6 +11,7 @@ namespace TemplateJwtProject.Models
         public string Name { get; set; }
         public string? Wiki {  get; set; }
         public string? Biography { get; set; }
+        public string? WebsiteUrl {  get; set; }
         public string? Photo {  get; set; }
 
     }
