@@ -17,11 +17,26 @@ public class GetArtistsController : Controller
     {
         _context = context;
     }
-    
+
+    // GET: api/GetArtists
     [HttpGet]
     public async Task<ActionResult<List<Artist>>> GetArtists()
     {
         List<Artist> allArtist = await _context.Artist.ToListAsync();
         return Ok(allArtist);
     }
+
+    // GET: api/GetArtists/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Artist>> GetArtistById(int id)
+    {
+        var artist = await _context.Artist
+            .FirstOrDefaultAsync(a => a.ArtistId == id);
+
+        if (artist == null)
+            return NotFound();
+
+        return Ok(artist);
+    }
+
 }
