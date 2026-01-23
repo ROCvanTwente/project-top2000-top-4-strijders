@@ -32,7 +32,7 @@ public class GetSongsController : Controller
     [HttpGet("artist/{artistId}/entriescount")]
     public async Task<ActionResult<List<SongEntriesCount>>> GetSongTop2000CountsByArtist(int artistId)
     {
-        var artistExists = await _context.Artist.AnyAsync(a => a.ArtistId == artistId);
+        var artistExists = await _context.Artists.AnyAsync(a => a.ArtistId == artistId);
         if (!artistExists)
         {
             return NotFound("Artist not found");
