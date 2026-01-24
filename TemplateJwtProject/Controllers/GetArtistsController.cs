@@ -22,7 +22,7 @@ public class GetArtistsController : Controller
     [HttpGet]
     public async Task<ActionResult<List<Artist>>> GetArtists()
     {
-        List<Artist> allArtist = await _context.Artist.ToListAsync();
+        List<Artist> allArtist = await _context.Artists.ToListAsync();
         return Ok(allArtist);
     }
 
@@ -30,7 +30,7 @@ public class GetArtistsController : Controller
     [HttpGet("{id}")]
     public async Task<ActionResult<Artist>> GetArtistById(int id)
     {
-        var artist = await _context.Artist
+        var artist = await _context.Artists
             .FirstOrDefaultAsync(a => a.ArtistId == id);
 
         if (artist == null)
@@ -38,5 +38,4 @@ public class GetArtistsController : Controller
 
         return Ok(artist);
     }
-
 }

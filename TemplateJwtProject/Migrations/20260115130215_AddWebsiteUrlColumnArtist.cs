@@ -12,7 +12,7 @@ namespace TemplateJwtProject.Migrations
         {
             migrationBuilder.AddColumn<string>(
                 name: "WebsiteUrl",
-                table: "Artist",
+                table: "Artists",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -22,7 +22,7 @@ namespace TemplateJwtProject.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "WebsiteUrl",
-                table: "Artist");
+                table: "Artists");
         }
     }
 }
