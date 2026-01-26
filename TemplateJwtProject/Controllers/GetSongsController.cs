@@ -49,7 +49,7 @@ public class GetSongsController : Controller
             .Select(g => new SongEntriesCount
             {
                 SongId = g.Key.SongId,
-                Title = g.Key.Titel,
+                Titel = g.Key.Titel,
                 ReleaseYear = g.Key.ReleaseYear,
                 TimesInTop2000 = g.Count()
             })
