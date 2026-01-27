@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.MicrosoftExtensions;
 using TemplateJwtProject.Data;
 using TemplateJwtProject.Models;
+using TemplateJwtProject.Models.DTOs;
 
 namespace TemplateJwtProject.Controllers;
 
@@ -25,6 +26,37 @@ public class GetSongsController : Controller
             .Include(s => s.Artist)
             .ToListAsync();
         return Ok(allSongs);
+    }
+
+    //api/GetSongs/artist/{artistId}/entriescount
+    [HttpGet("artist/{artistId}/entriescount")]
+    public async Task<ActionResult<List<SongEntriesCount>>> GetSongTop2000CountsByArtist(int artistId)
+    {
+        var artistExists = await _context.Artists.AnyAsync(a => a.ArtistId == artistId);
+        if (!artistExists)
+        {
+            return NotFound("Artist not found");
+        }
+
+        var result = await _context.Top2000Entry
+            .Where(te => te.Songs.ArtistId == artistId)
+            .GroupBy(te => new
+            {
+                te.SongId,
+                te.Songs.Titel,
+                te.Songs.ReleaseYear
+            })
+            .Select(g => new SongEntriesCount
+            {
+                SongId = g.Key.SongId,
+                Titel = g.Key.Titel,
+                ReleaseYear = g.Key.ReleaseYear,
+                TimesInTop2000 = g.Count()
+            })
+            .OrderByDescending(x => x.TimesInTop2000)
+            .ToListAsync();
+
+        return Ok(result);
     }
 
     // GET: api/GetSongs/5
