@@ -17,8 +17,7 @@ public class GetArtistsController : Controller
     {
         _context = context;
     }
-
-    // GET: api/GetArtists
+    
     [HttpGet]
     public async Task<ActionResult<List<Artist>>> GetArtists()
     {
