@@ -69,8 +69,8 @@ builder.Services.AddAuthentication(options =>
 // CORS configuratie
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
 var allowedOrigins = (corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" })
-    .Select(o => o.TrimEnd('/'))
     .Where(o => !string.IsNullOrWhiteSpace(o))
+    .Select(o => o.TrimEnd('/'))
     .ToArray();
 
 builder.Services.AddCors(options =>
