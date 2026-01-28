@@ -17,24 +17,30 @@ namespace TemplateJwtProject.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Top2000Entry>> Get()
+        public async Task<ActionResult<List<Top2000Entry>>> Get(int year)
         {
             try
             {
+                if (year < 1999 || year > 2025)
+                {
+                    Console.WriteLine("jaar moet tussen de 1999 en 2025 zijn");
+                    return BadRequest("jaar moet tussen de 1999 en 2025 zijn");
+                }
+
                 var items = await _context.Top2000Entry
-                .Where(e => e.Year == 2024)
+                .Where(e => e.Year == year)
                 .Include(e => e.Songs)
                 .ThenInclude(s => s.Artist)
                 .OrderBy(e => e.Position)
                 .Take(5)
                 .ToListAsync();
 
-                return items;
+                return Ok(items);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Probleem met database");
-                return new List<Top2000Entry>();
+                return StatusCode(500, "Er is een probleem opgetreden bij het ophalen van de data");
             }
         }
     }
