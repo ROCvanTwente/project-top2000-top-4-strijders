@@ -23,6 +23,7 @@ namespace TemplateJwtProject.Data.Seeders
 
             foreach (var artist in artists)
             {
+
                 var data = await _wiki.GetArtistDataAsync(artist.Name);
 
                 if (data != null)

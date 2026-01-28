@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -105,6 +106,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseForwardedHeaders();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+
+{
+
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+
+});
 
 // CORS middleware (voor Authentication en Authorization!)
 app.UseHttpsRedirection();
