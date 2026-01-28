@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 using System.Text;
 using TemplateJwtProject.Data;
 using TemplateJwtProject.Data.Seeders;
@@ -68,7 +69,9 @@ builder.Services.AddAuthentication(options =>
 
 // CORS configuratie
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
-var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" };
+var allowedOrigins = (corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" })
+    .Select(o => o.TrimEnd('/'))
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {
