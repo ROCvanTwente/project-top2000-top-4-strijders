@@ -17,11 +17,11 @@ public class GetArtistsController : Controller
     {
         _context = context;
     }
-    
+
     [HttpGet]
     public async Task<ActionResult<List<Artist>>> GetArtists()
     {
-        List<Artist> allArtist = await _context.Artist.ToListAsync();
+        List<Artist> allArtist = await _context.Artists.ToListAsync();
         return Ok(allArtist);
     }
 }
