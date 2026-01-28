@@ -16,11 +16,12 @@ namespace TemplateJwtProject.Controllers
             _context = context;
         }
 
+        [HttpGet]
         public async Task<ActionResult<List<Top2000Entry>>> Get(int year)
         {
             try
             {
-	            if (year >= 1999 && year < 2025)
+	            if (year >= 1999 && year <= 2025)
 	            {
 		            var items = await _context.Top2000Entry
 			            .Where(e => e.Year == year)
@@ -34,8 +35,8 @@ namespace TemplateJwtProject.Controllers
 	            }
 	            else
 	            {
-		            Console.WriteLine("jaar moet tussen de 1999 en 2024 zijn");
-		            return BadRequest("jaar moet tussen de 1999 en 2024 zijn");
+		            Console.WriteLine("jaar moet tussen de 1999 en 2025 zijn");
+		            return BadRequest("jaar moet tussen de 1999 en 2025 zijn");
 	            }
 			}
 			catch(Exception ex)
