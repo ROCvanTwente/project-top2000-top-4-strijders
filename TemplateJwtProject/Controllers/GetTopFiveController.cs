@@ -42,7 +42,7 @@ namespace TemplateJwtProject.Controllers
 			catch(Exception ex)
 			{
 				Console.WriteLine("Probleem met database");
-				return new List<Top2000Entry>();
+				return StatusCode(500, "Er is een probleem opgetreden bij het ophalen van de data");
 			}
 		}
     }
