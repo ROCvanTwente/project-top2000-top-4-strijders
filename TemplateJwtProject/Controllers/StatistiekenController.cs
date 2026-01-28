@@ -247,7 +247,7 @@ public class StatistiekenController : Controller
         {
             if (year > 1999 && year < 2025)
             {
-                List<NewComersDTO> allDisappearedSongs = new List<NewComersDTO>();
+                List<DisappearedSongsDTO> allDisappearedSongs = new List<DisappearedSongsDTO>();
                 List<Top2000Entry> entriesTop2000YearBefore = await _context.Top2000Entry
                     .Where(e => e.Year == year - 1)
                     .Include(e => e.Songs)
@@ -262,7 +262,7 @@ public class StatistiekenController : Controller
                     Top2000Entry? entryYear = entriesTop2000.FirstOrDefault(e => e.SongId == entryYearBefore.SongId);
                     if (entryYear == null)
                     {
-                        NewComersDTO newComer = new NewComersDTO()
+                        DisappearedSongsDTO disappearedSong = new DisappearedSongsDTO()
                         {
                             SongId = entryYearBefore.SongId,
                             Position = entryYearBefore.Position,
@@ -270,7 +270,7 @@ public class StatistiekenController : Controller
                             Title = entryYearBefore.Songs.Titel,
                             ReleaseYear = entryYearBefore.Songs.ReleaseYear,
                         };
-                        allDisappearedSongs.Add(newComer);
+                        allDisappearedSongs.Add(disappearedSong);
                         Console.WriteLine($"{entryYearBefore.Songs.Titel} is Verdweneen");
                     } else Console.WriteLine($"{entryYearBefore.Songs.Titel} is ook dit jaar op Top2000");
                 }
@@ -487,7 +487,6 @@ public class StatistiekenController : Controller
                     SongId = g.Key,
                     Count = g.Count()
                 })
-                .Take(3000)
                 .ToListAsync();
 
             foreach (var group in groups)
@@ -571,8 +570,8 @@ public class StatistiekenController : Controller
                 {
                     amount++;
                 }
-                List<ArtistWithMostSongsOnYearDto> sorted = ordered.Take(amount).ToList();
-                return Ok(sorted);
+                List<ArtistWithMostSongsOnYearDto> filtered = ordered.Take(amount).ToList();
+                return Ok(filtered);
             } else return  BadRequest("Mag alleen tussen de 1999 en 2024");
         }
         catch (Exception e)
@@ -580,6 +579,5 @@ public class StatistiekenController : Controller
             Console.WriteLine(e);
             return BadRequest(e.Message);
         }
-        
     }
 }

@@ -1,9 +1,10 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TemplateJwtProject.Data;
+using TemplateJwtProject.Data.Seeders;
 using TemplateJwtProject.Models;
 using TemplateJwtProject.Services;
 
@@ -14,6 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Database configuratie
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Seeders
+builder.Services.AddScoped<WikipediaService>();
+builder.Services.AddScoped<ArtistInfoSeeder>();
+builder.Services.AddHttpClient<WikipediaService>();
+
+
 
 // Identity configuratie
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -102,6 +110,20 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting(); // Add this before CORS
 app.UseCors("DefaultCorsPolicy");
+
+// Command to run seeders (dotnet run -- --seed-artistinfo)
+if (args.Contains("--seed-artistinfo"))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider
+        .GetRequiredService<ArtistInfoSeeder>();
+
+    await seeder.SeedAsync();
+    Console.WriteLine("Artist biographies seeded");
+
+    return;
+}
+
 
 app.UseAuthentication();
 app.UseAuthorization();
