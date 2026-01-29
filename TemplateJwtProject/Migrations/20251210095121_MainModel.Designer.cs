@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemplateJwtProject.Data;
 
@@ -11,9 +12,11 @@ using TemplateJwtProject.Data;
 namespace TemplateJwtProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251210095121_MainModel")]
+    partial class MainModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,56 +241,12 @@ namespace TemplateJwtProject.Migrations
                     b.Property<string>("Photo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WebsiteUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Wiki")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ArtistId");
 
-                    b.ToTable("Artists");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.PlayList", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PlayLists");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.PlayListSong", b =>
-                {
-                    b.Property<int>("PlayListId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SongId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PlayListId", "SongId");
-
-                    b.HasIndex("SongId");
-
-                    b.ToTable("PlayListSongs");
+                    b.ToTable("Artist");
                 });
 
             modelBuilder.Entity("TemplateJwtProject.Models.RefreshToken", b =>
@@ -432,36 +391,6 @@ namespace TemplateJwtProject.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TemplateJwtProject.Models.PlayList", b =>
-                {
-                    b.HasOne("TemplateJwtProject.Models.ApplicationUser", "User")
-                        .WithMany("PlayLists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.PlayListSong", b =>
-                {
-                    b.HasOne("TemplateJwtProject.Models.PlayList", "PlayList")
-                        .WithMany("PlayListSongs")
-                        .HasForeignKey("PlayListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TemplateJwtProject.Models.Songs", "Song")
-                        .WithMany("PlayListSongs")
-                        .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PlayList");
-
-                    b.Navigation("Song");
-                });
-
             modelBuilder.Entity("TemplateJwtProject.Models.RefreshToken", b =>
                 {
                     b.HasOne("TemplateJwtProject.Models.ApplicationUser", "User")
@@ -478,7 +407,7 @@ namespace TemplateJwtProject.Migrations
                     b.HasOne("TemplateJwtProject.Models.Artist", "Artist")
                         .WithMany()
                         .HasForeignKey("ArtistId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Artist");
@@ -493,21 +422,6 @@ namespace TemplateJwtProject.Migrations
                         .IsRequired();
 
                     b.Navigation("Songs");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("PlayLists");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.PlayList", b =>
-                {
-                    b.Navigation("PlayListSongs");
-                });
-
-            modelBuilder.Entity("TemplateJwtProject.Models.Songs", b =>
-                {
-                    b.Navigation("PlayListSongs");
                 });
 #pragma warning restore 612, 618
         }
