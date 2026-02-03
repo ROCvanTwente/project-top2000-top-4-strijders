@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.MicrosoftExtensions;
 using TemplateJwtProject.Data;
@@ -109,56 +110,28 @@ public class StatistiekenController : Controller
     }
     //2
     [HttpGet("Stijgers")]
-    public async Task<ActionResult<List<StijgersDTO>>> Stijgers(int year)
+    public async Task<ActionResult<List<SongsWithConsecutivePositionsDto>>> Stijgers(int year)
     {
         try
         {
-            if (year > 1999 && year < 2025)
+            if (year < 1999 || year > 2024)
             {
-                List<StijgersDTO> allStijgers = new List<StijgersDTO>();
-                
-                List<Top2000Entry> entriesTop2000 = await _context.Top2000Entry
-                    .Where(e => e.Year == year)
-                    .Include(e => e.Songs)
-                    .ThenInclude(s => s.Artist)
-                    .ToListAsync();
-            
-                List<Top2000Entry> entriesTop2000YearBefore = await _context.Top2000Entry
-                    .Where(e => e.Year == year - 1).ToListAsync();
+                return BadRequest("Mag alleen tussen de 1999 en 2024");
+            }
 
-                foreach (Top2000Entry entry in entriesTop2000)
-                {
-                    Top2000Entry? entryYearBefore = entriesTop2000YearBefore.FirstOrDefault(e => e.SongId == entry.SongId);
-                    if (entryYearBefore != null)
-                    {
-                        if (entry.Position < entryYearBefore.Position)
-                        {
-                            int gestegen = entryYearBefore.Position - entry.Position;
-                            Console.WriteLine($"{entry.Songs.Titel} is Gedaald met {gestegen}: Vorig jaar was {entryYearBefore.Position} en dit jaar is {entry.Position}");
-                            
-                            StijgersDTO stijger = new StijgersDTO()
-                            {
-                                SongId = entry.SongId,
-                                Title = entry.Songs.Titel,
-                                ArtistName = entry.Songs.Artist.Name,
-                                ReleaseYear = entry.Songs.ReleaseYear,
-                                Position = entry.Position,
-                                PositionYearBefore = entryYearBefore.Position,
-                                Gestegen = gestegen
-                            };
-                            allStijgers.Add(stijger);
-                        } else Console.WriteLine($"{entry.Songs.Titel} Zelfde gebleven of gedaald");
-                    } else Console.WriteLine($"{entry.Songs.Titel} Heeft vorig jaar niet gespeeld");
-                }
-                List<StijgersDTO> allStijgersSorted = allStijgers.OrderByDescending(d => d.Gestegen).ToList();
-                return Ok(allStijgersSorted);
-            } else return BadRequest("Mag alleen tussen de 2000 en 2024");
+            var stijgers = await _context.Database
+                .SqlQuery<SongsWithConsecutivePositionsDto>(
+                    $"EXEC dbo.Stijgers @Year = {year}")
+                .ToListAsync();
+
+            return Ok(stijgers);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             return BadRequest(e.Message);
         }
     }
+
     //3
     [HttpGet("GetEntriesOfAllTheYears")]
     public async Task<ActionResult<List<SongOnAllYearDTO>>> GetEntriesOfAllTheYears()
@@ -401,71 +374,26 @@ public class StatistiekenController : Controller
     {
         try
         {
-            if (year >= 1999 && year < 2025)
+            if (year < 1999 || year > 2024)
             {
-                List<SongsWithConsecutivePositionsDto> allSongsWithConsecutivePositions = new List<SongsWithConsecutivePositionsDto>();
-                
-                List<Top2000Entry> entries = await _context.Top2000Entry
-                    .Where(e => e.Year == year)
-                    .Include(e => e.Songs)
-                    .ThenInclude(s => s.Artist)
-                    .OrderBy(e => e.Position)
-                    .ToListAsync();
-                int lastArtistId = 0;
-                for (int i = 1; i <= entries.Count; i++)
-                {
-                    if (i < entries.Count - 1)
-                    {
-                        bool isSameArtist = entries[i].Songs.Artist.ArtistId == entries[i + 1].Songs.ArtistId;
-                        if (isSameArtist)
-                        {
-                            Console.WriteLine($"{entries[i].SongId} is op de zelfde artist {entries[i].Songs.Artist.ArtistId} als {entries[i + 1].SongId}");
-                            if (lastArtistId != entries[i].Songs.ArtistId)
-                            {
-                                SongsWithConsecutivePositionsDto songsWithConsecutivePositions = new SongsWithConsecutivePositionsDto()
-                                {
-                                    SongId = entries[i].SongId,
-                                    Position = entries[i].Position,
-                                    ArtistName = entries[i].Songs.Artist.Name,
-                                    Title = entries[i].Songs.Titel,
-                                    ReleaseYear = entries[i].Songs.ReleaseYear
-                                };
-                                
-                                SongsWithConsecutivePositionsDto songsWithConsecutivePositionsNext = new SongsWithConsecutivePositionsDto()
-                                {
-                                    SongId = entries[i + 1].SongId,
-                                    Position = entries[i + 1].Position,
-                                    ArtistName = entries[i + 1].Songs.Artist.Name,
-                                    Title = entries[i + 1].Songs.Titel,
-                                    ReleaseYear = entries[i + 1].Songs.ReleaseYear
-                                };
-                                allSongsWithConsecutivePositions.Add(songsWithConsecutivePositions);
-                                allSongsWithConsecutivePositions.Add(songsWithConsecutivePositionsNext);
-                            }
-                            else
-                            {
-                                SongsWithConsecutivePositionsDto songsWithConsecutivePositionsNext = new SongsWithConsecutivePositionsDto()
-                                {
-                                    SongId = entries[i + 1].SongId,
-                                    Position = entries[i + 1].Position,
-                                    ArtistName = entries[i + 1].Songs.Artist.Name,
-                                    Title = entries[i + 1].Songs.Titel,
-                                    ReleaseYear = entries[i + 1].Songs.ReleaseYear
-                                };
-                                allSongsWithConsecutivePositions.Add(songsWithConsecutivePositionsNext);
-                            }
-                        }
-                        lastArtistId = entries[i].Songs.ArtistId;
-                    }
-                }
-                return Ok(allSongsWithConsecutivePositions);
-            } else return BadRequest("Mag alleen tussen de 1999 en 2024");
+                return BadRequest("Mag alleen tussen de 1999 en 2024");
+            }
+
+            // Roep de SP
+            var songsWithConsecutivePositions = await _context
+                .Database
+                .SqlQuery<SongsWithConsecutivePositionsDto>($"EXEC SongsWithConsecutivePositions {year}")
+                .ToListAsync();
+
+            return Ok(songsWithConsecutivePositions);
         }
         catch (Exception e)
         {
             return BadRequest(e.Message);
         }
     }
+
+
     //9
     [HttpGet("GetSongsOnlyOnceOnTop2000")]
     public async Task<ActionResult<List<SongsOnlyOnceOnTop2000Dto>>> GetSongsOnlyOnceOnTop2000()
