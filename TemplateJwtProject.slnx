@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="TemplateJwtProject/TemplateJwtProject.csproj" />
+  <Project Path="TestProject1/TestProject1.csproj" Id="919e1778-7188-4c42-9e91-ffe8b6137602" />
 </Solution>

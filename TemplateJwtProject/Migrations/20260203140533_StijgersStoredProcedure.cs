@@ -4,7 +4,6 @@
 
 namespace TemplateJwtProject.Migrations
 {
-    /// <inheritdoc />
     public partial class StijgersStoredProcedure : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
