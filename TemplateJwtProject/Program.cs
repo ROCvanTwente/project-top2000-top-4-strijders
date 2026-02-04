@@ -1,9 +1,11 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TemplateJwtProject.Data;
+using TemplateJwtProject.Data.Seeders;
 using TemplateJwtProject.Models;
 using TemplateJwtProject.Services;
 
@@ -15,6 +17,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Seeders
+builder.Services.AddScoped<WikipediaService>();
+builder.Services.AddScoped<ArtistInfoSeeder>();
+builder.Services.AddHttpClient<WikipediaService>();
+
+
+
 // Identity configuratie
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -24,7 +33,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
-    
+
     // User settings
     options.User.RequireUniqueEmail = true;
 })
@@ -42,6 +51,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // Prevent automatic mapping of 'sub' to ClaimTypes.NameIdentifier
+    options.MapInboundClaims = false;
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -57,7 +69,7 @@ builder.Services.AddAuthentication(options =>
 
 // CORS configuratie
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
-var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:1234" };
+var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" };
 
 builder.Services.AddCors(options =>
 {
@@ -77,6 +89,8 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -93,10 +107,33 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+
+{
+
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+
+});
 
 // CORS middleware (voor Authentication en Authorization!)
+app.UseHttpsRedirection();
+app.UseRouting(); // Add this before CORS
 app.UseCors("DefaultCorsPolicy");
+
+// Command to run seeders (dotnet run -- --seed-artistinfo)
+if (args.Contains("--seed-artistinfo"))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider
+        .GetRequiredService<ArtistInfoSeeder>();
+
+    await seeder.SeedAsync();
+    Console.WriteLine("Artist biographies seeded");
+
+    return;
+}
+
 
 app.UseAuthentication();
 app.UseAuthorization();
