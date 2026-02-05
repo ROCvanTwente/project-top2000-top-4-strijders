@@ -49,11 +49,9 @@ namespace TestProject1.TestFiles
                 Assert.IsNotNull(list);
                 Assert.AreEqual(2, list.Count);
 
-                // Confirm ordering by Position (ascending)
                 Assert.AreEqual(1, list[0].Position);
                 Assert.AreEqual(2, list[1].Position);
 
-                // Navigations should be populated because controller includes Songs and Artist
                 Assert.IsNotNull(list[0].Songs);
                 Assert.IsNotNull(list[0].Songs.Artist);
                 Assert.AreEqual("Artist1", list[0].Songs.Artist.Name);
@@ -67,7 +65,6 @@ namespace TestProject1.TestFiles
 
             using (var context = new AppDbContext(options))
             {
-                // no seed required
                 context.SaveChanges();
             }
 
